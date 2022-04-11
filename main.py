@@ -44,7 +44,17 @@ if __name__ == "__main__":
 		    		"RETURN_TYPE_CHANGE","RETURN_TYPE_DELETE","RETURN_TYPE_INSERT","METHOD_RENAMING","PARAMETER_DELETE","PARAMETER_INSERT","PARAMETER_ORDERING_CHANGE","PARAMETER_RENAMING","PARAMETER_TYPE_CHANGE","TOTAL_METHODDECLARATIONSCHANGES",
 		    		"ATTRIBUTE_RENAMING","ATTRIBUTE_TYPE_CHANGE","TOTAL_ATTRIBUTEDECLARATIONCHANGES",
 		    		"ADDING_ATTRIBUTE_MODIFIABILITY","REMOVING_ATTRIBUTE_MODIFIABILITY","REMOVING_CLASS_DERIVABILITY","REMOVING_METHOD_OVERRIDABILITY","ADDING_CLASS_DERIVABILITY","ADDING_CLASS_DERIVABILITY","ADDING_METHOD_OVERRIDABILITY", "TOTAL_DECLARATIONPARTCHANGES","TOTAL_CHANGES"]
-
+    organicMetrics = ["project","commitNumber","fullyQualifiedName",
+                    "PublicFieldCount","IsAbstract","ClassLinesOfCode","WeighOfClass",
+                    "FANIN","TightClassCohesion","FANOUT","OverrideRatio","LCOM3",
+                    "WeightedMethodCount","LCOM2","NumberOfAccessorMethods",
+                    'LazyClass', 'DataClass', 'ComplexClass', 'SpaghettiCode', 
+                    'SpeculativeGenerality', 'GodClass', 'RefusedBequest', 
+                    'ClassDataShouldBePrivate', 'BrainClass', 'TotalClass',
+                    'LongParameterList', 'LongMethod', 'FeatureEnvy',
+                        'DispersedCoupling', 'MessageChain', 'IntensiveCoupling', 
+                        'ShotgunSurgery', 'BrainMethod', 'TotalMethod', 'TotalClassMethod',
+                         "DiversityTotal","DiversityMethod","DiversityClass"]
     #f = open(csvPath, "w")
     #writer = csv.writer(f)  
     missing = []
