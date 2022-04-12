@@ -12,11 +12,11 @@ import numpy as np
 
 
 
-pathOrganic = "/Volumes/backup-geni/projects-smells/results/organic/commons-bcel/repo/commons-bcel/"
+pathOrganic = "/Volumes/backup-geni/projects-smells/results/organic/pdfbox/repo/pdfbox/"
 organicRepo = pydriller.Git(pathOrganic)
 repo = git.Repo(pathOrganic)
 tags = repo.tags
-row = ["project","commitNumber","fullyQualifiedName",
+row = ["projectName","commitNumber","fullyQualifiedName",
       "PublicFieldCount","IsAbstract","ClassLinesOfCode","WeighOfClass",
       "FANIN","TightClassCohesion","FANOUT","OverrideRatio","LCOM3",
       "WeightedMethodCount","LCOM2","NumberOfAccessorMethods",
@@ -27,7 +27,7 @@ row = ["project","commitNumber","fullyQualifiedName",
         'DispersedCoupling', 'MessageChain', 'IntensiveCoupling', 
         'ShotgunSurgery', 'BrainMethod', 'TotalMethod', 'TotalClassMethod', 
         "DiversityTotal","DiversityMethod","DiversityClass"]
-csvPath = "/Volumes/backup-geni/projects-smells/results/organic/" + "commons-bcel.csv"
+csvPath = "/Volumes/backup-geni/projects-smells/results/organic/" + "pdfbox.csv"
 f = open(csvPath, "w")
 writer = csv.writer(f)
 smells_template = {
@@ -63,7 +63,7 @@ for tag in tags:
     hashCurrent = organicRepo.get_commit_from_tag(tag.name).hash
     try:
         # Carrega o arquivo do organic
-        file = open("/Volumes/backup-geni/projects-smells/results/organic/commons-bcel/commons-bcel-all/" + hashCurrent + "-commons-bcel.json")
+        file = open("/Volumes/backup-geni/projects-smells/results/organic/pdfbox/pdfbox-all/" + hashCurrent + "-pdfbox.json")
         smells_classes = json.load(file)
         for _class in smells_classes:
          smells = smells_template.copy()
