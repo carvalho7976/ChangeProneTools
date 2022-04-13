@@ -14,14 +14,14 @@ if __name__ == "__main__":
     #args = ap.parse_args()
 
     #folder with repo: projectA and projectB
-    pathCK = "/Volumes/backup-geni/projects-smells/results/ck/pdfbox/repo/pdfbox"
-    csvPathCK = "/Volumes/backup-geni/projects-smells/results/ck/pdfbox/pdfbox-all/"
+    pathCK = "/Volumes/backup-geni/projects-smells/results/ck/junit4/repo/junit4"
+    csvPathCK = "/Volumes/backup-geni/projects-smells/results/ck/junit4/junit4-all/"
     
-    csvPathUndestand = "/Volumes/backup-geni/projects-smells/results/understand/pdfbox/" 
-    csvPathProcessMetrics = "/Volumes/backup-geni/results/pdfbox-results-processMetrics.csv"
-    csvPathChangeDistiller = "/Volumes/backup-geni/projects-smells/results/ChangeDistiller/pdfbox-results.csv"
-    csvOrganic =  "/Volumes/backup-geni/projects-smells/results/organic/pdfbox.csv"
-    csvResults = "/Volumes/backup-geni/projects-smells/results/pdfbox-all-releases.csv"
+    csvPathUndestand = "/Volumes/backup-geni/projects-smells/results/understand/junit4/" 
+    csvPathProcessMetrics = "/Volumes/backup-geni/projects-smells/results/processMetrics/junit4-results-processMetrics.csv"
+    csvPathChangeDistiller = "/Volumes/backup-geni/projects-smells/results/ChangeDistiller/junit4-results.csv"
+    csvOrganic =  "/Volumes/backup-geni/projects-smells/results/organic/junit4.csv"
+    csvResults = "/Volumes/backup-geni/projects-smells/results/junit4-all-releases.csv"
 
     ckRepo = pydriller.Git(pathCK)
     #understandRepo = pydriller.Git(csvPathUndestand)
@@ -60,35 +60,39 @@ if __name__ == "__main__":
         hashCurrent = ckRepo.get_commit_from_tag(tag.name).hash
       
         try:
-            releaseCK = pd.read_csv(csvPathCK + hashCurrent+'-class.csv', usecols=ckClassMetricsAll, sep=',', index_col=False)
-
-            print("CK ")
-            print(releaseCK.shape[0])
             
-            releaseProcessMetrics = pd.read_csv(csvPathProcessMetrics, usecols=processMetrics, sep=',', engine='python', index_col=False)
-            releaseProcessMetrics = releaseProcessMetrics[(releaseProcessMetrics['commit'] == hashCurrent)]
             
-            print("Process ")
-            print(releaseProcessMetrics.shape[0])
-
             releaseUnderstand = pd.read_csv(csvPathUndestand + hashCurrent+'.csv', usecols=understandMetrics, sep=',',engine='python', index_col=False)
 
             print("Understand ")
             print(releaseUnderstand.shape[0])
 
-            releaseChangeDistillerMetrics = pd.read_csv(csvPathChangeDistiller, usecols=chageDistillerMetrics, sep=',',engine='python', index_col=False)
-            releaseChangeDistillerMetrics = releaseChangeDistillerMetrics[(releaseChangeDistillerMetrics['CURRENT_COMMIT'] == hashCurrent)]
-            
-            print("Change distiller ")
-            print(releaseChangeDistillerMetrics.shape[0])
+            releaseCK = pd.read_csv(csvPathCK + hashCurrent+'-class.csv', usecols=ckClassMetricsAll, sep=',', index_col=False)
 
+            print("CK ")
+            print(releaseCK.shape[0])
+
+           
             releaseOrganicMetrics = pd.read_csv(csvOrganic, usecols=organicMetrics, sep=',',engine='python', index_col=False)
             releaseOrganicMetrics = releaseOrganicMetrics[(releaseOrganicMetrics['commitNumber'] == hashCurrent)]
             
             print("Organic ")
             print(releaseOrganicMetrics.shape[0])
 
+            releaseChangeDistillerMetrics = pd.read_csv(csvPathChangeDistiller, usecols=chageDistillerMetrics, sep=',',engine='python', index_col=False)
+            releaseChangeDistillerMetrics = releaseChangeDistillerMetrics[(releaseChangeDistillerMetrics['CURRENT_COMMIT'] == hashCurrent)]
+           
 
+            print("Change distiller ")
+            print(releaseChangeDistillerMetrics.shape[0])
+
+            releaseProcessMetrics = pd.read_csv(csvPathProcessMetrics, usecols=processMetrics, sep=',', engine='python', index_col=False)
+            releaseProcessMetrics = releaseProcessMetrics[(releaseProcessMetrics['commit'] == hashCurrent)]
+            
+            print("Process ")
+            print(releaseProcessMetrics.shape[0])
+
+           
             #para cada release procurar as classes correspondentes e agregar em um só dataframe se "name" = "class"
             ck_understand = pd.merge(left=releaseCK, right=releaseUnderstand, left_on='class', right_on='Name')
             ck_understand_process = pd.merge(left=ck_understand, right=releaseProcessMetrics, left_on='class', right_on='className')
@@ -110,6 +114,7 @@ if __name__ == "__main__":
             release += 1
         except Exception as e: 
             print(e)
+           # print(hashCurrent)
             missing.append(hashCurrent)
       
     print(missing)

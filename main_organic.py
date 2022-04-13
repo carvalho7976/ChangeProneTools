@@ -12,7 +12,7 @@ import numpy as np
 
 
 
-pathOrganic = "/Volumes/backup-geni/projects-smells/results/organic/pdfbox/repo/pdfbox/"
+pathOrganic = "/Volumes/backup-geni/projects-smells/results/organic/openfire/repo/Openfire/"
 organicRepo = pydriller.Git(pathOrganic)
 repo = git.Repo(pathOrganic)
 tags = repo.tags
@@ -27,7 +27,7 @@ row = ["projectName","commitNumber","fullyQualifiedName",
         'DispersedCoupling', 'MessageChain', 'IntensiveCoupling', 
         'ShotgunSurgery', 'BrainMethod', 'TotalMethod', 'TotalClassMethod', 
         "DiversityTotal","DiversityMethod","DiversityClass"]
-csvPath = "/Volumes/backup-geni/projects-smells/results/organic/" + "pdfbox.csv"
+csvPath = "/Volumes/backup-geni/projects-smells/results/organic/" + "openfire.csv"
 f = open(csvPath, "w")
 writer = csv.writer(f)
 smells_template = {
@@ -63,7 +63,7 @@ for tag in tags:
     hashCurrent = organicRepo.get_commit_from_tag(tag.name).hash
     try:
         # Carrega o arquivo do organic
-        file = open("/Volumes/backup-geni/projects-smells/results/organic/pdfbox/pdfbox-all/" + hashCurrent + "-pdfbox.json")
+        file = open("/Volumes/backup-geni/projects-smells/results/organic/openfire/openfire-all/" + hashCurrent + "-openfire.json")
         smells_classes = json.load(file)
         for _class in smells_classes:
          smells = smells_template.copy()
@@ -98,7 +98,7 @@ for tag in tags:
 
     except Exception as e: 
          print(hashCurrent)
-         print(e)
+         #print(e)
 f.close()
 
     
