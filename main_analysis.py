@@ -65,9 +65,17 @@ for dataset in datasets:
     #print(all_releases_df.describe())
 
     print("Distribution")
-    ax = y_train.groupby(['will_change'])['will_change'].count().plot.bar(title="Class Distribution", figsize=(5,5))
+    #ax = y_train.groupby(['will_change'])['will_change'].count().plot.bar(title="Class Distribution", figsize=(5,5))
+    #ax.figure.savefig('results/distribution-' + dataset + '.png')
+    #plt.close()
+
+    ax = sns.countplot(x="will_change", data=y_train)
+    for p in ax.patches:
+        ax.annotate('{:.1f}'.format(p.get_height()), (p.get_x()+0.25, p.get_height()+0.01))
     ax.figure.savefig('results/distribution-' + dataset + '.png')
+    
     plt.close()
+
     print(y_train.groupby(['will_change'])['will_change'].count())
 
     print("Correlation")
