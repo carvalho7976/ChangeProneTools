@@ -266,7 +266,7 @@ def NN_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         ytr_NN, yvl_NN = Ytrain.iloc[train_index], Ytrain.iloc[test_index]
 
         #model
-        nn = MLPClassifier(random_state=42,n_jobs=-1)
+        nn = MLPClassifier(random_state=42)
         nn.fit(xtr_NN, ytr_NN.values.ravel())
         score = roc_auc_score(yvl_NN, nn.predict(xvl_NN))
         print('ROC AUC score:',score)
@@ -291,7 +291,7 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         ytr_DT, yvl_DT = Ytrain.iloc[train_index], Ytrain.iloc[test_index]
 
         #model
-        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced',n_jobs=-1)
+        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
         dt.fit(xtr_DT, ytr_DT.values.ravel())
         score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
         print('ROC AUC score:',score)
@@ -370,7 +370,7 @@ def NN_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         ytr_NN, yvl_NN = Ytrain[train_index], Ytrain[test_index]
 
         #model
-        nn = MLPClassifier(random_state=42,n_jobs=-1)
+        nn = MLPClassifier(random_state=42)
         nn.fit(xtr_NN, ytr_NN)
         score = roc_auc_score(yvl_NN, nn.predict(xvl_NN))
         print('ROC AUC score:',score)
@@ -394,7 +394,7 @@ def DecisionTree_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         xtr_DT, xvl_DT = Xtrain[train_index], Xtrain[test_index]
         ytr_DT, yvl_DT = Ytrain[train_index], Ytrain[test_index]
         #model
-        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced',n_jobs=-1)
+        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
         dt.fit(xtr_DT, ytr_DT)
         score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
         print('ROC AUC score:',score)
