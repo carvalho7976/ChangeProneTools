@@ -287,8 +287,8 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
     print("TRAIN AND VALIDATION SETS:")
     for train_index, test_index in kf.split(Xtrain, Ytrain):
         print('{} of KFold {}'.format(i,kf.n_splits))
-        xtr_DT, xvl_DT = X_train.iloc[train_index], X_train.iloc[test_index]
-        ytr_DT, yvl_DT = y_train.iloc[train_index], y_train.iloc[test_index]
+        xtr_DT, xvl_DT = Xtrain.iloc[train_index], Xtrain.iloc[test_index]
+        ytr_DT, yvl_DT = Ytrain.iloc[train_index], Ytrain.iloc[test_index]
 
         #model
         dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
@@ -341,6 +341,7 @@ def RandomForest_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         print('{} of KFold {}'.format(i,kf.n_splits))
         xtr_RF, xvl_RF = Xtrain[train_index], Xtrain[test_index]
         ytr_RF, yvl_RF = Ytrain[train_index], Ytrain[test_index]
+        
 
         #model
         rf = RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=100)
@@ -438,7 +439,9 @@ if __name__ == '__main__':
                 "BOC","TACH","FCH","LCH","CHO","FRCH","CHD","WCD","WFR","ATAF","LCA","LCD","CSB","CSBS","ACDF",																														
                 "FANIN","FANOUT","LazyClass","DataClass","ComplexClass","SpaghettiCode","SpeculativeGenerality","GodClass","RefusedBequest","ClassDataShouldBePrivate","BrainClass","TotalClass","LongParameterList","LongMethod","FeatureEnvy","DispersedCoupling","MessageChain","IntensiveCoupling","ShotgunSurgery","BrainMethod","TotalMethod","TotalClassMethod","DiversityTotal","DiversityMethod","DiversityClass",																				
                 "TOTAL_CHANGES","release","will_change"]
-    resamples= ['NONE','RUS','ENN','TL','ROS','SMOTE','ADA']
+    #resamples= ['NONE','RUS','ENN','TL','ROS','SMOTE','ADA']
+    #resamples= ['RUS','ENN','TL','ROS','SMOTE','ADA']
+    resamples= ['NONE','ROS','SMOTE','ADA']
     windowsize = [2,3,4]
     models= [{'key':'model1', 'value': model1},{'key':'model2', 'value': model2},{'key':'model3', 'value': model3},{'key':'model4', 'value': model4} ]
 
@@ -502,19 +505,21 @@ if __name__ == '__main__':
                         NN_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
                     # UNERSAMPLING RUS','ENN','TL'
                     if rs == 'RUS':
-                        X_RUS, y_RUS = RandomUnderSampler(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        X_RUS, y_RUS = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train.values.ravel())
+                        y_RUS = pd.DataFrame(y_RUS)
+                        
                         RandomForest_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                         DecisionTree_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                         LogisticRegr_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'ENN':
-                        X_ENN, y_ENN = EditedNearestNeighbours(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        X_ENN, y_ENN = EditedNearestNeighbours(random_state=42).fit_resample(X_train, y_train.values.ravel())
                         RandomForest_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                         DecisionTree_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                         LogisticRegr_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'TL':
-                        X_TL, y_TL = TomekLinks(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        X_TL, y_TL = TomekLinks(random_state=42).fit_resample(X_train, y_train.values.ravel())
                         RandomForest_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
                         DecisionTree_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
                         LogisticRegr_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
@@ -523,21 +528,21 @@ if __name__ == '__main__':
                     if rs == 'ROS':
                         ros = RandomOverSampler(random_state=42)
                         X_ROS, y_ROS = ros.fit_resample(X_train, y_train)
-                        RandomForest_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        NN_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        RandomForest_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'SMOTE':
                         sm = SMOTE(random_state=42)
                         X_SMO, y_SMO = sm.fit_resample(X_train, y_train)
-                        RandomForest_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        NN_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        RandomForest_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'ADA':
                         ada = ADASYN(random_state=42)
                         X_ADA, y_ADA = ada.fit_resample(X_train, y_train)
-                        RandomForest_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        NN_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        RandomForest_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
