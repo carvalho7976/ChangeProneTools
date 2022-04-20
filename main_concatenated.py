@@ -1,7 +1,9 @@
+
 import pandas as pd
 import numpy as np
 import statistics as st
 import matplotlib.pyplot as plt
+import csv
 
 from sklearn.model_selection import train_test_split
 
@@ -27,11 +29,11 @@ import operator
 
 import tensorflow as tf
 import os
-
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectPercentile,chi2,SelectFpr
 from sklearn.model_selection import StratifiedKFold as kf
 
-def generateStandardTimeSeriesStructure(all_releases_df, ws):
-
+def generateStandardTimeSeriesStructure(all_releases_df, ws, featureList):
  
     print("Generating a new dataframe without containing the last release...")
     df = all_releases_df[all_releases_df['release'] != all_releases_df['release'].max()]
@@ -58,10 +60,7 @@ def generateStandardTimeSeriesStructure(all_releases_df, ws):
     
     print("Setting the features...")
     class_names_list = df['class'].unique().tolist()
-    features_list = ["cbo","wmc","dit","rfc","lcom","tcc","lcc","totalMethodsQty","staticMethodsQty","publicMethodsQty","privateMethodsQty","protectedMethodsQty","defaultMethodsQty","abstractMethodsQty","finalMethodsQty","synchronizedMethodsQty","totalFieldsQty","staticFieldsQty","publicFieldsQty","privateFieldsQty","protectedFieldsQty","defaultFieldsQty","visibleFieldsQty","finalFieldsQty","nosi","loc","returnQty","loopQty","comparisonsQty","tryCatchQty","parenthesizedExpsQty","stringLiteralsQty","numbersQty","assignmentsQty","mathOperationsQty","variablesQty","maxNestedBlocksQty","anonymousClassesQty","innerClassesQty","lambdasQty","uniqueWordsQty","modifiers","logStatementsQty",
-                "AvgLine","AvgLineBlank","AvgLineCode","AvgLineComment","AvgCyclomatic","AvgCyclomaticModified","AvgCyclomaticStrict","MaxCyclomatic","MaxCyclomaticModified","MaxCyclomaticStrict","MaxEssential","MaxInheritanceTree","MaxNesting","PercentLackOfCohesion","RatioCommentToCode","SumCyclomatic","SumCyclomaticModified","SumCyclomaticStrict","SumEssential",																					
-                "BOC","TACH","FCH","LCH","CHO","FRCH","CHD","WCD","WFR","ATAF","LCA","LCD","CSB","CSBS","ACDF",																														
-                "FANIN","FANOUT","LazyClass","DataClass","ComplexClass","SpaghettiCode","SpeculativeGenerality","GodClass","RefusedBequest","ClassDataShouldBePrivate","BrainClass","TotalClass","LongParameterList","LongMethod","FeatureEnvy","DispersedCoupling","MessageChain","IntensiveCoupling","ShotgunSurgery","BrainMethod","TotalMethod","TotalClassMethod","DiversityTotal","DiversityMethod","DiversityClass"]
+    features_list = featureList
     print("DONE")
     
     timeseries_list = list()
@@ -85,9 +84,14 @@ def generateStandardTimeSeriesStructure(all_releases_df, ws):
     
     return timeseries_X, timeseries_labels
 
-def get_scores(y_test, y_pred):
+def get_scores(y_test, y_pred, dataset,algorithm,rs,model,ws):
     scores = []
-    
+    scores.append(dataset)
+    scores.append(algorithm)
+    scores.append(ws)
+    scores.append(model)
+    scores.append(rs)
+
     scores.append(f1_score(y_test, y_pred, average='micro'))
     print("F1-Score(micro): " + str(scores[-1]))
     
@@ -108,44 +112,44 @@ def get_scores(y_test, y_pred):
     
     #Sensitivity
     sensitivity = tp / (tp+fn)
-    scores.append(tp / (tp+fn))
+    scores.append(sensitivity)
     print("Sensitivity: " + str(scores[-1]))
-    
+
     #Specificity
     specificity = tn / (tn+fp)
-    scores.append (tn / (tn+fp))
+    scores.append (specificity)
     print("Specificity: " + str(scores[-1]))
-    
-    #VPP
-    scores.append(tp / (tp+fp))
-    #print("VPP: " + str(scores[-1]))
-    
-    #VPN
-    scores.append(tn / (tn+fn))
-    #print("VPN: " + str(scores[-1]))
-    
-    #RVP
-    scores.append(sensitivity / (1-specificity))
-    #print("RVP: " + str(scores[-1]))
-    
-    #RVN
-    scores.append((1 - sensitivity) / specificity)
-    #print("RVN: " + str(scores[-1]))
-    
+  
     #Confusion Matrix
     cnf_matrix = confusion_matrix(y_test, y_pred)
     cnf_matrix = cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
     print("Confusion Matrix: [" + str(cnf_matrix[0][0]) + ", " + str(round(cnf_matrix[1][1],2)) + "]")
-    
+    plot_confusion_matrix(cnf_matrix,dataset)
+
     #ROC_AUC
     scores.append(roc_auc_score(y_test, y_pred))
     print("ROC AUC score: " + str(scores[-1]))
-        
+
+    
     scores.append([tn, fp, fn, tp])
+    head = ['Dataset','Algoritm','window','model','resample','F1-Score(micro)','F1-Score(macro)','F1-Score(weighted)','F1-Score(None)','Accuracy','Sensitivity','Specificity','ROC AUC score','Confusion matrix']
+
+    if not os.path.exists('results/results.csv'):
+        f = open("results/results.csv", "a")
+        writer = csv.writer(f)
+        writer.writerow(head)
+        f.close()
+    
+    f = open("results/results.csv", "a")
+    writer = csv.writer(f)
+    writer.writerow(scores)
+    f.close()
+
+   
     
     return scores
 
-def plot_confusion_matrix(cm,
+def plot_confusion_matrix(cm,dataset,
                           normalize=False,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
@@ -168,7 +172,7 @@ def plot_confusion_matrix(cm,
     #plt.xticks(tick_marks, classes, rotation=45)
     #plt.yticks(tick_marks, classes)
 
-    fmt = '.2f' if normalize else 'd'
+    fmt = '.2f' if normalize else 'f'
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         plt.text(j, i, format(cm[i, j], fmt),
@@ -178,6 +182,8 @@ def plot_confusion_matrix(cm,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
+    plt.savefig('results/cf-' + dataset + '.png')
+    plt.close()
 
 def plot_confusion_matrixes(y_test, y_pred):
     # Compute confusion matrix
@@ -197,7 +203,8 @@ def plot_confusion_matrixes(y_test, y_pred):
     plt.tight_layout()
     plt.show()
 
-def LogisticRegr_(Xtrain, Ytrain, Xtest, Ytest):
+#UNDERSAMPLING
+def LogisticRegr_(Xtrain, Ytrain, Xtest, Ytest, dataset,rs,model,ws):
     print("\nLOGISTIC REGRESSION")
     cv_score = []
     i = 1
@@ -220,10 +227,9 @@ def LogisticRegr_(Xtrain, Ytrain, Xtest, Ytest):
     print('Std deviation: ' + str(np.std(cv_score)))
 
     print("\nTEST SET:")
-    get_scores(Ytest, lr.predict(Xtest))
+    get_scores(Ytest, lr.predict(Xtest), dataset, "LogistRegression",rs,model,ws)
 
-def RandomForest_(Xtrain, Ytrain, Xtest, Ytest):
-   
+def RandomForest_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
     print("RANDOM FOREST")
     cv_score = []
     i = 1
@@ -246,9 +252,9 @@ def RandomForest_(Xtrain, Ytrain, Xtest, Ytest):
     print('Std deviation: ' + str(np.std(cv_score)))    
 
     print("\nTEST SET:")
-    get_scores(Ytest, rf.predict(Xtest))
+    get_scores(Ytest, rf.predict(Xtest), dataset,"RandomForest",rs,model,ws)
 
-def NN_(Xtrain, Ytrain, Xtest, Ytest):
+def NN_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
    
     print("NEURAL NETWORK")
     cv_score = []
@@ -272,7 +278,134 @@ def NN_(Xtrain, Ytrain, Xtest, Ytest):
     print('Std deviation: ' + str(np.std(cv_score)))   
 
     print("\nTEST SET:")
-    get_scores(Ytest, nn.predict(Xtest))
+    get_scores(Ytest, nn.predict(Xtest), dataset,"MLP",rs,model,ws)
+
+def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
+    print("\nDECISION TREE")
+    cv_score = []
+    i = 1
+    print("TRAIN AND VALIDATION SETS:")
+    for train_index, test_index in kf.split(Xtrain, Ytrain):
+        print('{} of KFold {}'.format(i,kf.n_splits))
+        xtr_DT, xvl_DT = X_train.iloc[train_index], X_train.iloc[test_index]
+        ytr_DT, yvl_DT = y_train.iloc[train_index], y_train.iloc[test_index]
+
+        #model
+        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
+        dt.fit(xtr_DT, ytr_DT.values.ravel())
+        score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
+        print('ROC AUC score:',score)
+        cv_score.append(score)    
+        i+=1
+
+
+    print('\nCROSS VALIDANTION SUMMARY:')
+    print('Mean: ' + str(np.mean(cv_score)))
+    print('Std deviation: ' + str(np.std(cv_score)))    
+
+    print("\nTEST SET:")
+    get_scores(Ytest, dt.predict(Xtest),dataset,"DT",rs,model,ws)
+
+#OVERSAMPLING
+def LogisticRegr_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
+    print("\nLOGISTIC REGRESSION")
+    cv_score = []
+    i = 1
+    print("TRAIN AND VALIDATION SETS:")
+    for train_index, test_index in kf.split(Xtrain, Ytrain):
+        print('{} of KFold {}'.format(i,kf.n_splits))
+        xtr_LR, xvl_LR = Xtrain[train_index], Xtrain[test_index]
+        ytr_LR, yvl_LR = Ytrain[train_index], Ytrain[test_index]
+
+        #model
+        lr = LogisticRegression(solver='lbfgs', random_state=42, class_weight='balanced')
+        lr.fit(xtr_LR, ytr_LR)
+        score = roc_auc_score(yvl_LR, lr.predict(xvl_LR))
+        print('ROC AUC score:',score)
+        cv_score.append(score)    
+        i+=1
+
+    print('\nCROSS VALIDANTION SUMMARY:')
+    print('Mean: ' + str(np.mean(cv_score)))
+    print('Std deviation: ' + str(np.std(cv_score)))
+
+    print("\nTEST SET:")
+    get_scores(Ytest, lr.predict(Xtest),dataset,"LogistRegression",rs,model,ws)
+
+def RandomForest_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
+    print("RANDOM FOREST")
+    cv_score = []
+    i = 1
+    print("TRAIN AND VALIDATION SETS:")
+    for train_index, test_index in kf.split(Xtrain, Ytrain):
+        print('{} of KFold {}'.format(i,kf.n_splits))
+        xtr_RF, xvl_RF = Xtrain[train_index], Xtrain[test_index]
+        ytr_RF, yvl_RF = Ytrain[train_index], Ytrain[test_index]
+
+        #model
+        rf = RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=100)
+        rf.fit(xtr_RF, ytr_RF)
+        score = roc_auc_score(yvl_RF, rf.predict(xvl_RF))
+        print('ROC AUC score:',score)
+        cv_score.append(score)    
+        i+=1
+
+    print('\nCROSS VALIDANTION SUMMARY:')
+    print('Mean: ' + str(np.mean(cv_score)))
+    print('Std deviation: ' + str(np.std(cv_score)))    
+
+    print("\nTEST SET:")
+    get_scores(Ytest, rf.predict(Xtest),dataset,"RandomForest",rs,model,ws)
+
+def NN_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
+
+    print("NEURAL NETWORK")
+    cv_score = []
+    i = 1
+    print("TRAIN AND VALIDATION SETS:")
+    for train_index, test_index in kf.split(Xtrain, Ytrain):
+        print('{} of KFold {}'.format(i,kf.n_splits))
+        xtr_NN, xvl_NN = Xtrain[train_index], Xtrain[test_index]
+        ytr_NN, yvl_NN = Ytrain[train_index], Ytrain[test_index]
+
+        #model
+        nn = MLPClassifier(random_state=42)
+        nn.fit(xtr_NN, ytr_NN)
+        score = roc_auc_score(yvl_NN, nn.predict(xvl_NN))
+        print('ROC AUC score:',score)
+        cv_score.append(score)    
+        i+=1
+
+    print('\nCROSS VALIDANTION SUMMARY:')
+    print('Mean: ' + str(np.mean(cv_score)))
+    print('Std deviation: ' + str(np.std(cv_score)))   
+
+    print("\nTEST SET:")
+    get_scores(Ytest, nn.predict(Xtest),dataset,"MLP",rs,model,ws)
+
+def DecisionTree_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
+    print("\nDECISION TREE")
+    cv_score = []
+    i = 1
+    print("TRAIN AND VALIDATION SETS:")
+    for train_index, test_index in kf.split(Xtrain, Ytrain):
+        print('{} of KFold {}'.format(i,kf.n_splits))
+        xtr_DT, xvl_DT = Xtrain[train_index], Xtrain[test_index]
+        ytr_DT, yvl_DT = Ytrain[train_index], Ytrain[test_index]
+        #model
+        dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
+        dt.fit(xtr_DT, ytr_DT)
+        score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
+        print('ROC AUC score:',score)
+        cv_score.append(score)    
+        i+=1
+
+    print('\nCROSS VALIDANTION SUMMARY:')
+    print('Mean: ' + str(np.mean(cv_score)))
+    print('Std deviation: ' + str(np.std(cv_score)))    
+
+    print("\nTEST SET:")
+    get_scores(Ytest, dt.predict(Xtest),dataset,"DT",rs,model,ws)
 
 
 if __name__ == '__main__':
@@ -281,6 +414,22 @@ if __name__ == '__main__':
         print('GPU found')
     else:
         print("No GPU found")
+     #remove "tcc","lcc" -1 values
+    model1 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
+    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
+    "BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF",
+    "FANIN", "FANOUT", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate", "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
+    model2 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
+    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
+    "BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "FANIN", "FANOUT"]
+    model3 = ["BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate",
+    "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
+
+    model4 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
+    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",											"FANIN", "FANOUT", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate", "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
+
+    model5 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
+    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",											"FANIN", "FANOUT"]
 
     datasets = ['commons-bcel','commons-io','jhotdraw','junit4','pdfbox','wro4j']
     main_columns = ["project","commit","class",
@@ -289,34 +438,106 @@ if __name__ == '__main__':
                 "BOC","TACH","FCH","LCH","CHO","FRCH","CHD","WCD","WFR","ATAF","LCA","LCD","CSB","CSBS","ACDF",																														
                 "FANIN","FANOUT","LazyClass","DataClass","ComplexClass","SpaghettiCode","SpeculativeGenerality","GodClass","RefusedBequest","ClassDataShouldBePrivate","BrainClass","TotalClass","LongParameterList","LongMethod","FeatureEnvy","DispersedCoupling","MessageChain","IntensiveCoupling","ShotgunSurgery","BrainMethod","TotalMethod","TotalClassMethod","DiversityTotal","DiversityMethod","DiversityClass",																				
                 "TOTAL_CHANGES","release","will_change"]
+    resamples= ['NONE','RUS','ENN','TL','ROS','SMOTE','ADA']
+    windowsize = [2,3,4]
+    models= [{'key':'model1', 'value': model1},{'key':'model2', 'value': model2},{'key':'model3', 'value': model3},{'key':'model4', 'value': model4} ]
+
     for dataset in datasets:
-        print("TEST DATASET - " + dataset)
+        for ws in windowsize:
+            for rs in resamples:
+                for model in models:
+                    all_releases_df = pd.read_csv(
+                        'datasets/' + dataset + '-all-releases.csv', usecols=main_columns)
+                    all_releases_df = all_releases_df.fillna(0)
 
-        all_releases_df = pd.read_csv('datasets/' + dataset + '-all-releases.csv', usecols=main_columns)
-        all_releases_df = all_releases_df.dropna(axis=1, how='all')
-        X, y = generateStandardTimeSeriesStructure(all_releases_df, 2)
-        print("Declaring a dictionary to save results...")
-        results_dict = dict()
-        print("... DONE!")
+                    x_raw = all_releases_df[model.get('value')]
+                    y_raw = all_releases_df['will_change']
+                    #Feature selection
+                    #X_new = SelectPercentile(chi2, percentile=50).fit(x_raw, y_raw)
+                    X_new = SelectFpr(chi2, alpha=0.05).fit(x_raw, y_raw)
 
-        print("Splitting dataset into train and test sets...")
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
-        print("General information:")
-        print("X Train set:", X_train.shape[0], "X Test set:", X_test.shape[0])
-        print("y Train set:", y_train.shape[0], "y Test set:", y_test.shape[0])
-        print("... DONE!")
+                    mask = X_new.get_support()  # list of booleans
+                    new_features = []  # The list of your K best features
 
-        print("Scaling features...")
-        scaler = MinMaxScaler()
-        X_train = pd.DataFrame(scaler.fit_transform(X_train))
-        X_test = pd.DataFrame(scaler.fit_transform(X_test))
-        print("... DONE!")
+                    for bool, feature in zip(mask, model.get('value')):
+                        if bool:
+                            new_features.append(feature)
+                    print(new_features)
 
-        print("Setting stratified k-fold...")
-        k=10
-        kf = StratifiedKFold(n_splits=k, shuffle=False)
-        print("k =", k)
-        print("... DONE!\n")
-        y_test = pd.DataFrame(y_test)
-        y_train = pd.DataFrame(y_train)
-        RandomForest_(X_train, y_train, X_test, y_test)
+                    X, y = generateStandardTimeSeriesStructure(all_releases_df, ws, new_features)
+
+                    print("Declaring a dictionary to save results...")
+                    results_dict = dict()
+                    print("... DONE!")
+
+                    print("Splitting dataset into train and test sets...")
+                    X_train, X_test, y_train, y_test = train_test_split(
+                        X, y, test_size=0.30, random_state=42)
+                    print("General information:")
+                    print("X Train set:",
+                        X_train.shape[0], "X Test set:", X_test.shape[0])
+                    print("y Train set:",
+                        y_train.shape[0], "y Test set:", y_test.shape[0])
+                    print("... DONE!")
+
+                    print("Scaling features...")
+                    scaler = MinMaxScaler()
+                    X_train = pd.DataFrame(scaler.fit_transform(X_train))
+                    X_test = pd.DataFrame(scaler.fit_transform(X_test))
+                    print("... DONE!")
+
+                    print("Setting stratified k-fold...")
+                    k = 10
+                    kf = StratifiedKFold(n_splits=k, shuffle=False)
+                    print("k =", k)
+                    print("... DONE!\n")
+                    y_test = pd.DataFrame(y_test)
+                    y_train = pd.DataFrame(y_train)
+                   
+                    #WITHOUT OVER OR UNDERSUMPLING
+                    if rs == 'NONE':
+                        RandomForest_(X_train, y_train, X_test, y_test, dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    # UNERSAMPLING RUS','ENN','TL'
+                    if rs == 'RUS':
+                        X_RUS, y_RUS = RandomUnderSampler(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        RandomForest_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    if rs == 'ENN':
+                        X_ENN, y_ENN = EditedNearestNeighbours(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        RandomForest_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    if rs == 'TL':
+                        X_TL, y_TL = TomekLinks(random_state=42).fit_sample(X_train, y_train.values.ravel())
+                        RandomForest_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    #OVERSAMPLING 'ROS','SMOTE','ADA'
+                    if rs == 'ROS':
+                        ros = RandomOverSampler(random_state=42)
+                        X_ROS, y_ROS = ros.fit_resample(X_train, y_train)
+                        RandomForest_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_NoIloc(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    if rs == 'SMOTE':
+                        sm = SMOTE(random_state=42)
+                        X_SMO, y_SMO = sm.fit_resample(X_train, y_train)
+                        RandomForest_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_NoIloc( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                    if rs == 'ADA':
+                        ada = ADASYN(random_state=42)
+                        X_ADA, y_ADA = ada.fit_resample(X_train, y_train)
+                        RandomForest_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        DecisionTree_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        LogisticRegr_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        NN_NoIloc(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
