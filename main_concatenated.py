@@ -296,10 +296,12 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
 
         #model
         dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
-        dt.fit(xtr_DT, ytr_DT.values.ravel())
+        #dt.fit(xtr_DT, ytr_DT.values.ravel())
+        
 
         grid = GridSearchCV(dt, {}, n_jobs=1,
                     verbose=0)
+        grid.fit(xtr_DT, ytr_DT.values.ravel())
         score = roc_auc_score(yvl_DT, grid.predict(xvl_DT))
         #score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
         print('ROC AUC score:',score)
