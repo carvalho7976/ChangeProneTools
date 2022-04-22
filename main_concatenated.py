@@ -267,8 +267,12 @@ def NN_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
 
         #model
         nn = MLPClassifier(random_state=42)
-        nn.fit(xtr_NN, ytr_NN.values.ravel())
-        score = roc_auc_score(yvl_NN, nn.predict(xvl_NN))
+        #nn.fit(xtr_NN, ytr_NN.values.ravel())
+        grid = GridSearchCV(nn, {}, n_jobs=1,
+                    verbose=0)
+        grid.fit(xtr_NN, ytr_NN.values.ravel())
+        score = roc_auc_score(yvl_NN, grid.predict(xvl_NN))
+        #score = roc_auc_score(yvl_NN, nn.predict(xvl_NN))
         print('ROC AUC score:',score)
         cv_score.append(score)    
         i+=1
@@ -278,7 +282,7 @@ def NN_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
     print('Std deviation: ' + str(np.std(cv_score)))   
 
     print("\nTEST SET:")
-    get_scores(Ytest, nn.predict(Xtest), dataset,"MLP",rs,model,ws)
+    get_scores(Ytest, grid.predict(Xtest), dataset,"MLP",rs,model,ws)
 
 def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
     print("\nDECISION TREE")
@@ -293,7 +297,11 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         #model
         dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
         dt.fit(xtr_DT, ytr_DT.values.ravel())
-        score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
+
+        grid = GridSearchCV(dt, {}, n_jobs=1,
+                    verbose=0)
+        score = roc_auc_score(yvl_DT, grid.predict(xvl_DT))
+        #score = roc_auc_score(yvl_DT, dt.predict(xvl_DT))
         print('ROC AUC score:',score)
         cv_score.append(score)    
         i+=1
@@ -304,7 +312,7 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
     print('Std deviation: ' + str(np.std(cv_score)))    
 
     print("\nTEST SET:")
-    get_scores(Ytest, dt.predict(Xtest),dataset,"DT",rs,model,ws)
+    get_scores(Ytest, grid.predict(Xtest),dataset,"DT",rs,model,ws)
 
 #OVERSAMPLING
 def LogisticRegr_NoIloc(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
@@ -499,50 +507,50 @@ if __name__ == '__main__':
                    
                     #WITHOUT OVER OR UNDERSUMPLING
                     if rs == 'NONE':
-                        RandomForest_(X_train, y_train, X_test, y_test, dataset,rs,model.get('key'),ws)
-                        DecisionTree_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  RandomForest_(X_train, y_train, X_test, y_test, dataset,rs,model.get('key'),ws)
+                      #  DecisionTree_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  LogisticRegr_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_train, y_train, X_test, y_test,dataset,rs,model.get('key'),ws)
                     # UNERSAMPLING RUS','ENN','TL'
                     if rs == 'RUS':
                         X_RUS, y_RUS = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train.values.ravel())
                         y_RUS = pd.DataFrame(y_RUS)
                         
-                        RandomForest_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        #RandomForest_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        #DecisionTree_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        #LogisticRegr_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_RUS, y_RUS, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'ENN':
                         X_ENN, y_ENN = EditedNearestNeighbours(random_state=42).fit_resample(X_train, y_train.values.ravel())
-                        RandomForest_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        #RandomForest_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # DecisionTree_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # LogisticRegr_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_ENN, y_ENN, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'TL':
                         X_TL, y_TL = TomekLinks(random_state=42).fit_resample(X_train, y_train.values.ravel())
-                        RandomForest_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  RandomForest_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # DecisionTree_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # LogisticRegr_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_TL, y_TL, X_test, y_test,dataset,rs,model.get('key'),ws)
                     #OVERSAMPLING 'ROS','SMOTE','ADA'
                     if rs == 'ROS':
                         ros = RandomOverSampler(random_state=42)
                         X_ROS, y_ROS = ros.fit_resample(X_train, y_train)
-                        DecisionTree_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        RandomForest_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                        #DecisionTree_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # RandomForest_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
+                       # LogisticRegr_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_ROS, y_ROS, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'SMOTE':
                         sm = SMOTE(random_state=42)
                         X_SMO, y_SMO = sm.fit_resample(X_train, y_train)
-                        RandomForest_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                     #   RandomForest_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  DecisionTree_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
+                     #   LogisticRegr_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_( X_SMO, y_SMO, X_test, y_test,dataset,rs,model.get('key'),ws)
                     if rs == 'ADA':
                         ada = ADASYN(random_state=42)
                         X_ADA, y_ADA = ada.fit_resample(X_train, y_train)
-                        RandomForest_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        DecisionTree_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
-                        LogisticRegr_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  RandomForest_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  DecisionTree_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
+                      #  LogisticRegr_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
                         NN_(X_ADA, y_ADA, X_test, y_test,dataset,rs,model.get('key'),ws)
