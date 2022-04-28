@@ -134,13 +134,13 @@ def get_scores(y_test, y_pred, dataset,algorithm,rs,model,ws):
     scores.append([tn, fp, fn, tp])
     head = ['Dataset','Algoritm','window','model','resample','F1-Score(micro)','F1-Score(macro)','F1-Score(weighted)','F1-Score(None)','Accuracy','Sensitivity','Specificity','ROC AUC score','Confusion matrix']
 
-    if not os.path.exists('results/results.csv'):
-        f = open("results/results.csv", "a")
+    if not os.path.exists('results/results-concat-no-feature-selection.csv'):
+        f = open("results/results-concat-no-feature-selection.csv", "a")
         writer = csv.writer(f)
         writer.writerow(head)
         f.close()
     
-    f = open("results/results.csv", "a")
+    f = open("results/results-concat-no-feature-selection.csv", "a")
     writer = csv.writer(f)
     writer.writerow(scores)
     f.close()
@@ -268,7 +268,7 @@ def NN_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         #model
         nn = MLPClassifier(random_state=42)
         #nn.fit(xtr_NN, ytr_NN.values.ravel())
-        grid = GridSearchCV(nn, {}, n_jobs=1,
+        grid = GridSearchCV(nn, {}, n_jobs=-1,
                     verbose=0)
         grid.fit(xtr_NN, ytr_NN.values.ravel())
         score = roc_auc_score(yvl_NN, grid.predict(xvl_NN))
@@ -299,7 +299,7 @@ def DecisionTree_(Xtrain, Ytrain, Xtest, Ytest,dataset,rs,model,ws):
         #dt.fit(xtr_DT, ytr_DT.values.ravel())
         
 
-        grid = GridSearchCV(dt, {}, n_jobs=1,
+        grid = GridSearchCV(dt, {}, n_jobs=-1,
                     verbose=0)
         grid.fit(xtr_DT, ytr_DT.values.ravel())
         score = roc_auc_score(yvl_DT, grid.predict(xvl_DT))
@@ -425,24 +425,26 @@ if __name__ == '__main__':
         print('GPU found')
     else:
         print("No GPU found")
-     #remove "tcc","lcc" -1 values
     model1 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
+    
     "BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF",
-    "FANIN", "FANOUT", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate", "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
+    
+    "FANIN", "FANOUT",  "TotalClassMethod", "DiversityTotal"]
+    
+    #"LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate", "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod",  "DiversityMethod", "DiversityClass"
     model2 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
     "BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "FANIN", "FANOUT"]
+    
     model3 = ["BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate",
-    "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
+    "TotalClassMethod", "DiversityTotal"]
 
     model4 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
-    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",											"FANIN", "FANOUT", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate", "BrainClass", "TotalClass", "LongParameterList", "LongMethod", "FeatureEnvy", "DispersedCoupling", "MessageChain", "IntensiveCoupling", "ShotgunSurgery", "BrainMethod", "TotalMethod", "TotalClassMethod", "DiversityTotal", "DiversityMethod", "DiversityClass"]
-
-    model5 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
-    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",											"FANIN", "FANOUT"]
-
-    datasets = ['commons-bcel','commons-io','jhotdraw','junit4','pdfbox','wro4j']
+    "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
+    "FANIN", "FANOUT", "TotalClassMethod", "DiversityTotal"]
+    datasets = ['commons-bcel','commons-io','junit4','pdfbox','wro4j']
+    
     main_columns = ["project","commit","class",
                 "cbo","wmc","dit","rfc","lcom","tcc","lcc","totalMethodsQty","staticMethodsQty","publicMethodsQty","privateMethodsQty","protectedMethodsQty","defaultMethodsQty","abstractMethodsQty","finalMethodsQty","synchronizedMethodsQty","totalFieldsQty","staticFieldsQty","publicFieldsQty","privateFieldsQty","protectedFieldsQty","defaultFieldsQty","visibleFieldsQty","finalFieldsQty","nosi","loc","returnQty","loopQty","comparisonsQty","tryCatchQty","parenthesizedExpsQty","stringLiteralsQty","numbersQty","assignmentsQty","mathOperationsQty","variablesQty","maxNestedBlocksQty","anonymousClassesQty","innerClassesQty","lambdasQty","uniqueWordsQty","modifiers","logStatementsQty",
                 "AvgLine","AvgLineBlank","AvgLineCode","AvgLineComment","AvgCyclomatic","AvgCyclomaticModified","AvgCyclomaticStrict","Cyclomatic","CyclomaticModified","CyclomaticStrict","Essential","MaxCyclomatic","MaxCyclomaticModified","MaxCyclomaticStrict","MaxEssential","MaxInheritanceTree","MaxNesting","PercentLackOfCohesion","RatioCommentToCode","SumCyclomatic","SumCyclomaticModified","SumCyclomaticStrict","SumEssential",																					
@@ -463,21 +465,21 @@ if __name__ == '__main__':
                         'datasets/' + dataset + '-all-releases.csv', usecols=main_columns)
                     all_releases_df = all_releases_df.fillna(0)
 
-                    x_raw = all_releases_df[model.get('value')]
-                    y_raw = all_releases_df['will_change']
+                    #x_raw = all_releases_df[model.get('value')]
+                    #y_raw = all_releases_df['will_change']
                     #Feature selection
                     #X_new = SelectPercentile(chi2, percentile=50).fit(x_raw, y_raw)
-                    X_new = SelectFpr(chi2, alpha=0.05).fit(x_raw, y_raw)
+                    #X_new = SelectFpr(chi2, alpha=0.05).fit(x_raw, y_raw)
 
-                    mask = X_new.get_support()  # list of booleans
-                    new_features = []  # The list of your K best features
+                    #mask = X_new.get_support()  # list of booleans
+                    #new_features = []  # The list of your K best features
 
-                    for bool, feature in zip(mask, model.get('value')):
-                        if bool:
-                            new_features.append(feature)
-                    print(new_features)
+                    #for bool, feature in zip(mask, model.get('value')):
+                    #    if bool:
+                    #        new_features.append(feature)
+                    #print(new_features)
 
-                    X, y = generateStandardTimeSeriesStructure(all_releases_df, ws, new_features)
+                    X, y = generateStandardTimeSeriesStructure(all_releases_df, ws, model.get('value'))
 
                     print("Declaring a dictionary to save results...")
                     results_dict = dict()
