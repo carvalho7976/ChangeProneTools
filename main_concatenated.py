@@ -444,7 +444,7 @@ if __name__ == '__main__':
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
     "FANIN", "FANOUT", "TotalClassMethod", "DiversityTotal"]
 
-    model5= ["lch","wfr","frch","fanout","fanin","chd","acdf","ataf","wcd","csb"]
+    model5= ["LCH", "WFR", "FRCH", "FANOUT", "FANIN", "CHD", "ACDF", "ATAF", "WCD", "CSB"]
     datasets = ['commons-bcel','commons-io','junit4','pdfbox','wro4j']
     
     main_columns = ["project","commit","class",
