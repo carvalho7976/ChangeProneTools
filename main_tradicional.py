@@ -134,13 +134,13 @@ def get_scores(y_test, y_pred, dataset,algorithm,rs,model,ws):
     scores.append([tn, fp, fn, tp])
     head = ['Dataset','Algoritm','window','model','resample','F1-Score(micro)','F1-Score(macro)','F1-Score(weighted)','F1-Score(None)','Accuracy','Sensitivity','Specificity','ROC AUC score','Confusion matrix']
 
-    if not os.path.exists('results/results-tradicional-no-feature-selection.csv'):
-        f = open("results/results-tradicional-no-feature-selection.csv", "a")
+    if not os.path.exists('results/results-tradicional-no-feature-selection-model5.csv'):
+        f = open("results/results-tradicional-no-feature-selection-model5.csv", "a")
         writer = csv.writer(f)
         writer.writerow(head)
         f.close()
     
-    f = open("results/results-tradicional-no-feature-selection.csv", "a")
+    f = open("results/results-tradicional-no-feature-selection-model5.csv", "a")
     writer = csv.writer(f)
     writer.writerow(scores)
     f.close()
@@ -343,7 +343,7 @@ if __name__ == '__main__':
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
     "FANIN", "FANOUT", "TotalClassMethod", "DiversityTotal"]
 
-   
+    model5= ["LCH", "WFR", "FRCH", "FANOUT", "FANIN", "CHD", "ACDF", "ATAF", "WCD", "CSB"]
     datasets = ['commons-bcel','commons-io','junit4','pdfbox','wro4j']
     main_columns = ["project","commit","class",
                 "cbo","wmc","dit","rfc","lcom","tcc","lcc","totalMethodsQty","staticMethodsQty","publicMethodsQty","privateMethodsQty","protectedMethodsQty","defaultMethodsQty","abstractMethodsQty","finalMethodsQty","synchronizedMethodsQty","totalFieldsQty","staticFieldsQty","publicFieldsQty","privateFieldsQty","protectedFieldsQty","defaultFieldsQty","visibleFieldsQty","finalFieldsQty","nosi","loc","returnQty","loopQty","comparisonsQty","tryCatchQty","parenthesizedExpsQty","stringLiteralsQty","numbersQty","assignmentsQty","mathOperationsQty","variablesQty","maxNestedBlocksQty","anonymousClassesQty","innerClassesQty","lambdasQty","uniqueWordsQty","modifiers","logStatementsQty",
@@ -355,8 +355,8 @@ if __name__ == '__main__':
     #resamples= ['RUS','ENN','TL','ROS','SMOTE','ADA']
     resamples= ['NONE','ROS','SMOTE','ADA']
     windowsize = [0]
-    models= [{'key':'model1', 'value': model1},{'key':'model2', 'value': model2},{'key':'model3', 'value': model3},{'key':'model4', 'value': model4} ]
-
+    #models= [{'key':'model1', 'value': model1},{'key':'model2', 'value': model2},{'key':'model3', 'value': model3},{'key':'model4', 'value': model4} ]
+    models= [{'key':'model5', 'value': model5}]
     for dataset in datasets:
         for ws in windowsize:
             for rs in resamples:
