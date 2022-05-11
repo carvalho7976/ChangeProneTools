@@ -134,13 +134,13 @@ for db in databases:
     importances = [np.mean(fi_list[fn]) for fn in feature_names]
     std = [np.std(fi_list[fn]) for fn in feature_names]
 
-    top_features = np.array(feature_names)[np.argsort(importances)[-80:][::-1]]
+    top_features = np.array(feature_names)[np.argsort(importances)[-10:][::-1]]
     print(f"{db}: {top_features}")
     top_features_csv = []
     top_features_csv.append(db)
     for tf in top_features:
         top_features_csv.append(tf)
-    f = open("results/" +db + "top-features.csv", "a")
+    f = open("results/" +db + "-top-features.csv", "a")
     writer = csv.writer(f)
     writer.writerow(top_features_csv)
     f.close()
