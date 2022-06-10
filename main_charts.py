@@ -189,7 +189,7 @@ for metric in metrics:
     ax.set_ylabel(metric)
     ax.set_xlabel('')
     plt.legend(loc='lower right')
-    plt.savefig('results/algs-sets1_2_6_7'+metric+'.pdf')
+    plt.savefig('results/algs-sets1_2_3_4_5_6'+metric+'.pdf')
 
 
     plt.show()
