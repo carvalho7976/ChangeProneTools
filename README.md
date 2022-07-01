@@ -41,7 +41,7 @@ Each script starts with "main_" and is responsible for some individual part of t
 - main_historyBasedApproach:  run history-based approach   
 - main_tradicionalApproach: run tradicional approach  
 - main_joinMetrics: join metrics of organic, understand, ck, evolutional and changeDistiller  
-- main_analysis: statistical analysys of the datasets  
+- main_analysis: statistical analysis of the datasets  
 
 
 ## Folders
