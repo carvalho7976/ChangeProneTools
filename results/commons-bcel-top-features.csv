@@ -1,0 +1,9 @@
+commons-bcel,LCH,WFR,CHO,FANOUT,WCD,FANIN,FRCH,RatioCommentToCode,CSB,ACDF
+commons-bcel,LCH,WFR,CHO,FANOUT,WCD
+commons-bcel,LCH,WFR,CHO,WCD,FANOUT,FRCH,FANIN,defaultFieldsQty,CSB,BOC,RatioCommentToCode,ACDF,uniqueWordsQty,LCD,AvgLine,AvgLineComment,LCA,CHD,PercentLackOfCohesion,ATAF
+commons-bcel,LCH,WFR,CHO,FANOUT,WCD,FRCH,defaultFieldsQty,FANIN,RatioCommentToCode,BOC,CSB,ACDF,uniqueWordsQty,LCD,AvgLine,LCA,AvgLineComment,AvgLineCode,CHD,ATAF,PercentLackOfCohesion,AvgLineBlank,TACH,rfc,MaxNesting,maxNestedBlocksQty,loc,TotalClassMethod,MaxInheritanceTree,loopQty,innerClassesQty,nosi,publicMethodsQty,variablesQty,cbo,MaxEssential,abstractMethodsQty,SumCyclomaticModified,stringLiteralsQty,SumCyclomaticStrict,comparisonsQty,parenthesizedExpsQty,assignmentsQty,MaxCyclomaticModified,SumEssential,returnQty,protectedFieldsQty,DiversityTotal,dit,MaxCyclomaticStrict,MaxCyclomatic,mathOperationsQty,CSBS,SumCyclomatic,synchronizedMethodsQty,modifiers,numbersQty,FCH,wmc,totalMethodsQty,staticFieldsQty,finalFieldsQty,lcom,defaultMethodsQty,privateMethodsQty,AvgCyclomaticModified,AvgCyclomaticStrict,tryCatchQty,AvgCyclomatic
+commons-bcel,totalFieldsQty,tryCatchQty,numbersQty,returnQty,assignmentsQty,loopQty,ATAF,CSB
+commons-bcel,totalFieldsQty,defaultMethodsQty,FCH,MaxCyclomaticStrict,TotalClassMethod,ATAF,FRCH
+commons-bcel,LCH,WFR,CHO,WCD,FANOUT,defaultFieldsQty,FRCH,FANIN,CSB,BOC,RatioCommentToCode,ACDF,LCD,uniqueWordsQty,AvgLine,LCA,AvgLineCode,AvgLineComment,PercentLackOfCohesion,CHD
+commons-bcel,LCH,WFR,CHO,WCD,FANOUT,defaultFieldsQty,FRCH,FANIN,BOC,CSB
+commons-bcel,LCH,WFR,CHO,FANOUT,WCD,FRCH,FANIN,defaultFieldsQty,CSB,RatioCommentToCode

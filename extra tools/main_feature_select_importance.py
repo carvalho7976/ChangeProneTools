@@ -52,7 +52,7 @@ main_columns = ["project","commit","class",
 for db in databases:
 
     all_releases_df = pd.read_csv(
-                        'datasets/' + db + '-all-releases.csv', usecols=main_columns)                 
+                        '../datasets/' + db + '-all-releases.csv', usecols=main_columns)                 
     all_releases_df = all_releases_df.fillna(0)
 
     total_data_X = np.array(all_releases_df[feature_names].copy())
@@ -86,7 +86,7 @@ for db in databases:
             clf = ExtraTreesClassifier(n_estimators=50)
             clf = clf.fit(trainX, trainY.ravel())
             # f_selector = SelectFromModel(clf, prefit=True)
-            f_selector = SelectFromModel(clf, prefit=True, max_features=50, threshold=-np.inf)
+            f_selector = SelectFromModel(clf, prefit=True, max_features=10, threshold=-np.inf)
 
         if class_red_type == 'pca':
             f_selector = PCA(n_components='mle')
@@ -109,7 +109,7 @@ for db in databases:
         ax.set_title("Importâncias de características usando MDI")
         ax.set_ylabel("Mean decrease in impurity (MDI)")
         fig.tight_layout()
-        fig.savefig(f'results/f_import_{db}_fold_{fold_id}.pdf')
+        fig.savefig(f'../results/f_import_{db}_fold_{fold_id}.pdf')
 
         
         trainX = f_selector.transform(trainX)
@@ -140,16 +140,20 @@ for db in databases:
     top_features_csv.append(db)
     for tf in top_features:
         top_features_csv.append(tf)
-    f = open("results/" +db + "-top-features.csv", "a")
+    f = open("../results/" +db + "-top-features.csv", "a")
     writer = csv.writer(f)
     writer.writerow(top_features_csv)
     f.close()
-    forest_importances = pd.Series(importances, index=feature_names)
+
+    importances = [np.mean(fi_list[fn]) for fn in top_features]
+    std = [np.std(fi_list[fn]) for fn in top_features]
+
+    forest_importances = pd.Series(importances, index=top_features)
     
     
     fig, ax = plt.subplots()
     forest_importances.plot.bar(yerr=std, ax=ax)
-    ax.set_title("Feature importances using MDI")
-    ax.set_ylabel("Mean decrease in impurity")
+    ax.set_title(db)
+    ax.set_ylabel("Mean decrease in impurity - MDI")
     fig.tight_layout()
-    fig.savefig(f'results/f_import_{db}.pdf')
+    fig.savefig(f'../results/f_import_{db}.pdf')
