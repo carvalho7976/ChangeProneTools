@@ -425,6 +425,7 @@ if __name__ == '__main__':
         print('GPU found')
     else:
         print("No GPU found")
+      
     model1 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
     
@@ -436,7 +437,7 @@ if __name__ == '__main__':
     model2 = ["cbo", "wmc", "dit", "rfc", "lcom", "totalMethodsQty", "staticMethodsQty", "publicMethodsQty", "privateMethodsQty", "protectedMethodsQty", "defaultMethodsQty", "abstractMethodsQty", "finalMethodsQty", "synchronizedMethodsQty", "totalFieldsQty", "staticFieldsQty", "publicFieldsQty", "privateFieldsQty", "protectedFieldsQty", "defaultFieldsQty", "visibleFieldsQty", "finalFieldsQty", "nosi", "loc", "returnQty", "loopQty", "comparisonsQty", "tryCatchQty", "parenthesizedExpsQty", "stringLiteralsQty", "numbersQty", "assignmentsQty", "mathOperationsQty", "variablesQty", "maxNestedBlocksQty", "anonymousClassesQty", "innerClassesQty", "lambdasQty", "uniqueWordsQty", "modifiers", "logStatementsQty",
     "AvgLine", "AvgLineBlank", "AvgLineCode", "AvgLineComment", "AvgCyclomatic", "AvgCyclomaticModified", "AvgCyclomaticStrict", "MaxCyclomatic", "MaxCyclomaticModified", "MaxCyclomaticStrict", "MaxEssential", "MaxInheritanceTree", "MaxNesting", "PercentLackOfCohesion", "RatioCommentToCode", "SumCyclomatic", "SumCyclomaticModified", "SumCyclomaticStrict", "SumEssential",
     "BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "FANIN", "FANOUT"]
-    
+
     model3 = ["BOC", "TACH", "FCH", "LCH", "CHO", "FRCH", "CHD", "WCD", "WFR", "ATAF", "LCA", "LCD", "CSB", "CSBS", "ACDF", "LazyClass", "DataClass", "ComplexClass", "SpaghettiCode", "SpeculativeGenerality", "GodClass", "RefusedBequest", "ClassDataShouldBePrivate",
     "TotalClassMethod", "DiversityTotal"]
 

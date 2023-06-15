@@ -3,8 +3,8 @@ from matplotlib import pyplot as plt
 pd.set_option('display.max_columns', None)
 metrics = ['F1-Score(weighted)', 'Accuracy', 'Sensitivity', 'Specificity', 'ROC AUC score']
 for metric in metrics:
-    df = pd.read_csv('charts/resultadospormodelo.csv', decimal=",")
-    print(df.columns)
+    df = pd.read_csv('../datasets/resultadospormodelo.csv', decimal=",")
+    #print(df.columns)
     print('######### ' + metric)
 
     # approach
@@ -12,7 +12,7 @@ for metric in metrics:
     dfApp['window'] = dfApp['window'].replace({0: 'trad', 3: 'our'})
     # dfAvg = dfApp.groupby(['Dataset', 'window'])[metric].mean()
     # print(dfAvg)
-    print(dfApp.head)
+    #print(dfApp.head)
     ax = pd.pivot_table(dfApp, index='Dataset', columns='window')[metric].plot.bar(alpha=0.75, rot=0)
     # for p in ax.patches:
     #     ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
@@ -79,10 +79,12 @@ for metric in metrics:
 
     # feature sets
     dfSet = df.query("window == 3")
-    dfSet['model'] = dfSet['model'].replace({'model1': 'set1', 'model2': 'set2','model3': 'set3','model4': 'set4','model6': 'set5','model7': 'set6'})
-    dfAvg = dfSet.groupby(['Dataset', 'model'])[metric].mean()
-    # print(dfAvg)
-
+    dfSet['model'] = dfSet['model'].replace({'model1': 'AF', 'model2': 'StEv','model3': 'EvSm','model4': 'StSm','model6': 'St','model7': 'Ev'}
+)
+    dfAvg = dfSet.groupby(['model'])[metric].mean()
+    print(dfAvg)
+    dfMaxAll = dfSet.groupby(['Dataset','model'])[metric].mean()
+    #print(dfMaxAll)
     ax = pd.pivot_table(dfSet, index='Dataset', columns='model')[metric].plot.bar(alpha=0.75, rot=0)
     # for p in ax.patches:
     #     ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
@@ -91,7 +93,8 @@ for metric in metrics:
     plt.legend(loc='lower right')
     plt.savefig('results/sets'+metric+'.pdf')
 
-
+   
+    
     #algorithms
     dfAlg = df.query("window == 3")
     dfAlg = dfAlg.query("model == 'model1'")
@@ -192,5 +195,7 @@ for metric in metrics:
     plt.savefig('results/algs-sets1_2_3_4_5_6'+metric+'.pdf')
 
 
-    plt.show()
+    #plt.show()
 
+    
+ 

@@ -17,6 +17,6 @@ ax = df.plot.bar()
 
 ax.bar_label(ax.containers[0])
 ax.set(xlabel='Window Size', ylabel='# in Top 10 (all datasets)')
-plt.xticks(rotation='vertical')
+plt.xticks(rotation='horizontal')
 plt.savefig('results/rankws.pdf')
 plt.show()
